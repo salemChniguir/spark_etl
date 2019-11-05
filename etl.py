@@ -10,21 +10,50 @@ Created on Thu Oct 10 14:48:07 2019
 
 from pyspark import SparkContext, SparkConf
 from pyspark import SQLContext
-
 from abc import ABC, abstractmethod
 
-#classe abstraite
+
+
 class Extract(ABC):
+    """
+    An abstract Class
+    
+    Methods
+    ----------
+    extract():
+        Abstract Method to extract Data to be implimented in children classes
+    """
     
     @abstractmethod
     def extract(self):
         raise NotImplementedError("Subclass must implement abstract method") 
         
         
-#classe qui herite de la classe Extract et qui permet d'extraire des données de SGBD Oracle        
+ 
 class ExtractFromOracle(Extract):
-   
+    """
+    A Child Class of Extract Class used to extract Data from DBMS Oracle
+    
+    Methods
+    ----------
+    extract():
+         extracts from DBMS Oracle
+    """
     def __init__(self,sqlContext,url,query_or_table,user,password):
+        """
+        Parameters
+        ------------
+        sqlContext: sqlContext
+        
+        url: str    
+            the url to access to the DB in Oracle DBMS
+        query_or_table: str
+            the name of the table or the query
+        user: str
+            the user of the DB
+        password: str
+            the password to access to DB
+        """
         
         self.url=url
         self.query_or_table=query_or_table
@@ -32,12 +61,19 @@ class ExtractFromOracle(Extract):
         self.password=password
         self.sqlContext=sqlContext
     
-        
     def extract(self):
-        result =self.sqlContext.read.format("jdbc").option("url",self.url).option("dbtable",self.query_or_table).option("user",self.user).option("password",self.password).load()
+        """
+        gives as result data extracted from Oracle
+        
+        """
+        result =self.sqlContext.read.format("jdbc").option("url",self.url)\
+        .option("dbtable",self.query_or_table)\ 
+        .option("user",self.user)\
+        .option("password",self.password)\
+        .load()
         return result
     
-#classe qui herite de la classe Extract et qui permet d'extraire des données d'un fichier CSV    
+
 class ExtractFromFile(Extract):
     def __init__(self,s,sqlContext):
         self.sqlContext=sqlContext
