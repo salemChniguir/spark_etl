@@ -8,12 +8,6 @@ Created on Thu Oct 10 14:48:07 2019
 @phone: +216 24 270 231 
 """
 
-from pyspark import SparkContext, SparkConf
-from pyspark import SQLContext
-from abc import ABC, abstractmethod
-
-
-
 class Extract(ABC):
     """
     An abstract Class
@@ -44,7 +38,7 @@ class ExtractFromOracle(Extract):
         Parameters
         ------------
         sqlContext: sqlContext
-        
+            the sqlContext of the Spark Application
         url: str    
             the url to access to the DB in Oracle DBMS
         query_or_table: str
@@ -75,29 +69,82 @@ class ExtractFromOracle(Extract):
     
 
 class ExtractFromFile(Extract):
-    def __init__(self,s,sqlContext):
+    """
+    A Child Class of Extract Class used to extract Data from csv File
+    
+    Methods
+    ----------
+    extract():
+         extracts from csv File
+    """
+    
+    def __init__(self,sch,sqlContext):
+        """
+        Parameters
+        ------------
+        sqlContext: sqlContext
+            the sqlContext of the Spark Application
+        sch: array    
+            the array contains the schema of the data in the file
+        """
         self.sqlContext=sqlContext
         self.schema=s
         
        
     def extract(self):
+        """
+        gives as result data extracted from a csv file
+        
+        """
         result=self.sqlContext.read.load(self.schema,
         format="csv", sep=",", inferSchema="true", header="true")
         return result
-    
-#classe qui herite de la classe Extract et qui permet d'extraire des données d'un fichier Json   
+ 
+
 class ExtractFromJson(Extract):
-    def __init__(self,lien):
-        self.lien=lien
+    """
+    A Child Class of Extract Class used to extract Data from Json File
+    
+    Methods
+    ----------
+    extract():
+         extracts from json File
+    """
+    
+    def __init__(self,link):
+        """
+        Parameters
+        ------------
+        link: str
+            the link of the file
+        """    
+        self.link=link
+        
        
     def extract(self):
-        result=self.spark.read.load(self.lien, format="json")
+        """
+        gives as result data extracted from a json file
+        
+        """
+        result=self.spark.read.load(self.link, format="json")
         return result
 
 
-#classe qui cotient quelques méthodes pour nettoyer les données  
+ 
 class Transform:
-  
+    """
+    A Class used to transform data
+    
+    Methods
+    ----------
+    CastColumns():
+        extracts from json File
+    ReplaceAllNan():
+        replace all Nan values in the dataFrame with a defined value
+    ReplaceAllNanDict():
+        take a dict of column:value to replace all Nan values for each column in the dataFrame
+    
+    """
     
     def __init__(self,sqlContext,sparkContext):
         self.sqlContext=sqlContext
@@ -109,12 +156,12 @@ class Transform:
         return dataFrame
    
     # méthode permettant de remplacer les valeurs nulles par une constante  
-    def RemplacerAllNan(self,df,d=0):
+    def ReplaceAllNan(self,df,d=0):
         df=df.fillna(d)
         return df
     # méthode permettant de remplacer les valeurs nulles pour chaque colonne par des autres valeurs
     # attribut dictionnaire: contient les couples (colonne, nouvellesValeur)
-    def RemplacerAllNanDict(self,df,dictionnaire):
+    def ReplaceAllNanDict(self,df,dictionnaire):
         df=df.fillna(dictionnaire)
         return df
 
@@ -208,7 +255,13 @@ class ETL():
         self.loder.loadDataFrame(cdrMonth,"CDR_FRIENDS",self.user,self.password,"Append")
         #self.loder.loadDataFrame(df2,"comportement",self.user,self.password)
         
+
         
+from pyspark import SparkContext, SparkConf
+from pyspark import SQLContext
+from abc import ABC, abstractmethod
+
+
 def main():
     spark_config = SparkConf().setMaster("local[4]")\
                 .setAppName('etl')\
