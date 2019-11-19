@@ -178,7 +178,7 @@ class Transform:
 
     def ReplaceAllNan(self,df,d=0):
         """
-        replaces all the NaN values with a chossen value
+        replaces all the NaN values with a chossen value (default 0)
 
         Parameters
         ------------
@@ -189,14 +189,34 @@ class Transform:
         """
         df=df.fillna(d)
         return df
-    # méthode permettant de remplacer les valeurs nulles pour chaque colonne par des autres valeurs
-    # attribut dictionnaire: contient les couples (colonne, nouvellesValeur)
-    def ReplaceAllNanDict(self,df,dictionnaire):
-        df=df.fillna(dictionnaire)
+
+
+
+    def ReplaceAllNanDict(self,df,dictio):
+        """
+        take a dict of (column,value) to replace all Nan values for each column in the dataFrame
+
+        Parameters
+        ------------
+        df: dataFrame
+            the dataFrame to be manipulated
+        dictio: dict
+            a dict contains (column,value) tuples
+        """
+        df=df.fillna(dictio)
         return df
 
-# classe permettant d'avoir une table CDR
+
+
 class TransformCDR(Transform):
+    """
+    A Child Class of Transform Class used to transform the dataFrame to a cdrTable
+
+    Methods
+    ----------
+    setTableCDR(df,month):
+        transform the dataFrame df to a cdrTable of the choosen month
+    """
 
 
     def setTableCDR(self,df,month):
@@ -216,10 +236,6 @@ class TransformCDR(Transform):
         from cdr,cdrSelected where \
         (cdr.FROM_SUBSCRIBER_ID=cdrSelected.FROM_SUBSCRIBER_ID and cdr.TO_SUBSCRIBER_ID=cdrSelected.TO_SUBSCRIBER_ID)")
 
-        #df=df.drop("AGREGATION_DAYS")
-        #cdrMonth=df.where(df.CALL_DATE==month)
-        #cdrMonth=cdrMonth.filter((cdrMonth.DURATION>10) | (cdrMonth.SMS>5)  | (cdrMonth.CALLING_DAYS>5)  | (cdrMonth.CALLS>5) )
-        #cdrMonth=cdrMonth.distinct()
         return df_cdr
 
 
